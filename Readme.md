@@ -6,6 +6,7 @@
 ![PyPI](https://img.shields.io/pypi/v/keycumber?style=flat-square)
 ![PyPI - Downloads](https://img.shields.io/pypi/dm/keycumber?style=flat-square)
 ![Travis (.org)](https://img.shields.io/travis/louisguitton/keycumber?style=flat-square)
+![Code Climate coverage](https://img.shields.io/codeclimate/coverage/louisguitton/keycumber?style=flat-square)
 
 Put your destinations and modifiers into different CSV files.
 Run `keycumber` and all keyword combinations will be generated for you and stored in CSV files.

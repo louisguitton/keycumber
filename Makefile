@@ -10,4 +10,4 @@ upload:
 
 .PHONY:test
 test:
-	pytest --cov=keycumber tests
+	pytest tests
