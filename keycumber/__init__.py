@@ -8,7 +8,9 @@ import pandas as pd
 click_completion.init()
 
 
-def combine_keywords(destinations: str, modifiers: str, output: str, max_rows: int):
+def combine_keywords(
+    destinations: str, modifiers: str, output: str, max_rows: int, mode: str
+):
     destinations = pd.read_csv(destinations)
     modifiers = pd.read_csv(modifiers)
 
@@ -20,9 +22,21 @@ def combine_keywords(destinations: str, modifiers: str, output: str, max_rows: i
         names=["destinations", "modifiers"],
     )
     df = pd.DataFrame(index=index).reset_index()
-    df["output"] = df.destinations + " " + df.modifiers
-    # df['output_2'] = df.modifiers + ' ' + df.destinations
-    out_df = df[["output"]]
+    if mode == "destination_first":
+        df["output"] = df.destinations + " " + df.modifiers
+    elif mode == "modifier_first":
+        df["output"] = df.modifiers + " " + df.destinations
+    elif mode == "both":
+        df["destination_first"] = df.destinations + " " + df.modifiers
+        df["modifier_first"] = df.modifiers + " " + df.destinations
+        df = pd.concat(
+            [
+                df["destination_first"].rename("output"),
+                df["modifier_first"].rename("output"),
+            ],
+            axis=0,
+        ).to_frame()
+    out_df = df.output
 
     Path(output).mkdir(parents=True, exist_ok=True)
 
@@ -51,7 +65,9 @@ def combine_keywords(destinations: str, modifiers: str, output: str, max_rows: i
             df_i.to_csv(Path(output_dir) / f"out_{id}.csv", index=False)
 
     click.secho(
-        "Keywors successfully combined. Output stored in {}".format(output_dir or output_file),
+        "Keywors successfully combined. Output stored in {}".format(
+            output_dir or output_file
+        ),
         fg="green",
         # https://click.palletsprojects.com/en/7.x/api/#click.style
     )
@@ -90,6 +106,25 @@ def combine_keywords(destinations: str, modifiers: str, output: str, max_rows: i
     default=None,
     help="Max number of rows in the output file(s). If total number of rows is greater that max_rows, then the script will create multiple files.",
 )
-def cli(destinations, modifiers, out, max_rows):
-    """🥒   Combine Keywords from CSV files."""
-    combine_keywords(destinations=destinations, modifiers=modifiers, output=out, max_rows=max_rows)
+@click.option(
+    "--mode",
+    required=False,
+    type=click.Choice(
+        ["destination_first", "modifier_first", "both"], case_sensitive=False
+    ),
+    prompt="Mode",
+    default="destination_first",
+    help="Mode in which the script should work: 'destination_first' will put destinations first and modifiers after. 'modifier_first' is the opposite. 'both' will include both combinations one after another.",
+)
+def cli(destinations, modifiers, out, max_rows, mode):
+    """🥒   Combine Keywords from CSV files.
+
+    Can be used in interactive mode without passing any arguments.
+    """
+    combine_keywords(
+        destinations=destinations,
+        modifiers=modifiers,
+        output=out,
+        max_rows=max_rows,
+        mode=mode,
+    )
