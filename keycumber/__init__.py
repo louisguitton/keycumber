@@ -8,12 +8,19 @@ import pandas as pd
 click_completion.init()
 
 
-def combine_keywords(
-    destinations: str, modifiers: str, output: str, max_rows: int, mode: str
-):
-    destinations = pd.read_csv(destinations)
-    modifiers = pd.read_csv(modifiers)
+def rm_tree(pth):
+    pth = Path(pth)
+    for child in pth.glob("*"):
+        if child.is_file():
+            child.unlink()
+        else:
+            rm_tree(child)
+    pth.rmdir()
 
+
+def combine_keywords(
+    destinations: pd.DataFrame, modifiers: pd.DataFrame, mode: str
+) -> pd.Series:
     # TODO: add checks on files have only one column
     # TODO: add rename on file column to conform with expectations
 
@@ -35,14 +42,18 @@ def combine_keywords(
                 df["modifier_first"].rename("output"),
             ],
             axis=0,
+            ignore_index=True,
         ).to_frame()
-    out_df = df.output
 
-    Path(output).mkdir(parents=True, exist_ok=True)
+    return df.output
 
+
+def write_keywords(out_df: pd.Series, output: str, max_rows: float,) -> Path:
     # Add batching logic to create files with less rows than max_rows
     if max_rows:
-        number_of_chunks = len(df) // max_rows + 1
+        number_of_chunks = len(out_df) // max_rows
+        if len(out_df) % max_rows:
+            number_of_chunks += 1
     else:
         number_of_chunks = 1
 
@@ -54,6 +65,8 @@ def combine_keywords(
         else:
             output_file = output
 
+        if not Path(output_file).exists():
+            Path(output_file).mkdir(parents=True, exist_ok=True)
         out_df.to_csv(output_file, index=False)
     else:
         if Path(output).is_dir():
@@ -61,16 +74,13 @@ def combine_keywords(
         else:
             output_dir = Path(output).parent / Path(output).stem
 
+        rm_tree(output_dir)
+        Path(output_dir).mkdir(parents=True, exist_ok=True)
+
         for id, df_i in enumerate(np.array_split(out_df, number_of_chunks)):
             df_i.to_csv(Path(output_dir) / f"out_{id}.csv", index=False)
 
-    click.secho(
-        "Keywors successfully combined. Output stored in {}".format(
-            output_dir or output_file
-        ),
-        fg="green",
-        # https://click.palletsprojects.com/en/7.x/api/#click.style
-    )
+    return Path(output_dir or output_file)
 
 
 @click.command()
@@ -101,9 +111,9 @@ def combine_keywords(
 @click.option(
     "--max-rows",
     required=False,
-    type=int,
+    type=float,
     prompt="Max number of rows to include in the output file(s).",
-    default=None,
+    default=np.inf,
     help="Max number of rows in the output file(s). If total number of rows is greater that max_rows, then the script will create multiple files.",
 )
 @click.option(
@@ -121,10 +131,15 @@ def cli(destinations, modifiers, out, max_rows, mode):
 
     Can be used in interactive mode without passing any arguments.
     """
-    combine_keywords(
-        destinations=destinations,
-        modifiers=modifiers,
-        output=out,
-        max_rows=max_rows,
-        mode=mode,
+    destinations = pd.read_csv(destinations)
+    modifiers = pd.read_csv(modifiers)
+
+    out_df = combine_keywords(
+        destinations=destinations, modifiers=modifiers, mode=mode,
+    )
+    path = write_keywords(out_df, output=out, max_rows=max_rows,)
+    click.secho(
+        f"Keywors successfully combined. Output stored in {path}",
+        fg="green",
+        # https://click.palletsprojects.com/en/7.x/api/#click.style
     )

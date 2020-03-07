@@ -66,8 +66,6 @@ keycumber -d data/destinations.csv -m data/modifiers.csv -o data/output/
 
 ## Todo
 
-- add tests
-- add github pages with docs and link to pypi
 - add check that input files are CSVs
 - add checks on input files have only 1 column
 - add rename on input file column to support files with other names

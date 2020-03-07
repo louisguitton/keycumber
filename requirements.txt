@@ -1,6 +1,7 @@
 click
 click-completion
-setuptools
 pandas
+pytest
+setuptools
 twine
 wheel
