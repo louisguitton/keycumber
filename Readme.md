@@ -2,13 +2,22 @@
 
 > A Keyword Combinator to make Inbound Marketer's life better.
 
-## Setup
+![PyPI - Python Version](https://img.shields.io/pypi/pyversions/keycumber?style=flat-square)
+![PyPI](https://img.shields.io/pypi/v/keycumber?style=flat-square)
+![PyPI - Downloads](https://img.shields.io/pypi/dm/keycumber?style=flat-square)
+
+Put your destinations and modifiers into different CSV files.
+Run `keycumber` and all keyword combinations will be generated for you and stored in CSV files.
+
+## Installation
 
 ```sh
 pip install keycumber
 ```
 
-## Usage
+More info [on Pypi](https://pypi.org/project/keycumber/).
+
+## Usage example
 
 Get help
 
@@ -57,9 +66,10 @@ keycumber -d data/destinations.csv -m data/modifiers.csv -o data/output/
 
 ## Todo
 
-- add check for CSVs
-- add checks on files have only 1 column
-- add rename on file column to support files with other name
-- handle files with no headers
-- add check for left and right files not equal
+- add tests
 - add github pages with docs and link to pypi
+- add check that input files are CSVs
+- add checks on input files have only 1 column
+- add rename on input file column to support files with other names
+- handle files with no headers
+- add check to make sure for destination file and modifier file are not equal
