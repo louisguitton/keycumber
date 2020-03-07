@@ -27,6 +27,9 @@ Options:
   -o, --out PATH           Path where to write the output of the script. It
                            can be a directory or a file. Output will be of CSV
                            format.  [required]
+  --max-rows INTEGER       Max number of rows in the output file(s). If total
+                           number of rows is greater that max_rows, then the
+                           script will create multiple files.
   --help                   Show this message and exit.
 ```
 
@@ -45,10 +48,9 @@ keycumber -d data/destinations.csv -m data/modifiers.csv -o data/output/
 ## Todo
 
 - add order = pois_first / modifiers_first / both
-- add batch
-  if not specified, output everything in one file. if specified, default to 700 and creates files of 700 rows in folder
 - add check for CSVs
 - add checks on files have only 1 column
 - add rename on file column to support files with other name
 - handle files with no headers
 - add check for left and right files not equal
+- add github pages with docs and link to pypi

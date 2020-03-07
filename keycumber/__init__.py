@@ -2,12 +2,13 @@ from pathlib import Path
 
 import click
 import click_completion
+import numpy as np
 import pandas as pd
 
 click_completion.init()
 
 
-def combine_keywords(destinations, modifiers, output):
+def combine_keywords(destinations: str, modifiers: str, output: str, max_rows: int):
     destinations = pd.read_csv(destinations)
     modifiers = pd.read_csv(modifiers)
 
@@ -21,18 +22,38 @@ def combine_keywords(destinations, modifiers, output):
     df = pd.DataFrame(index=index).reset_index()
     df["output"] = df.destinations + " " + df.modifiers
     # df['output_2'] = df.modifiers + ' ' + df.destinations
-
-    # TODO: only one column, batch by 700 rows maximum
+    out_df = df[["output"]]
 
     Path(output).mkdir(parents=True, exist_ok=True)
-    if Path(output).is_dir():
-        output_path = Path(output) / "out.csv"
+
+    # Add batching logic to create files with less rows than max_rows
+    if max_rows:
+        number_of_chunks = len(df) // max_rows + 1
     else:
-        output_path = output
-    df[["output"]].to_csv(output_path, index=False)
+        number_of_chunks = 1
+
+    output_dir = None
+    output_file = None
+    if number_of_chunks == 1:
+        if Path(output).is_dir():
+            output_file = Path(output) / "out.csv"
+        else:
+            output_file = output
+
+        out_df.to_csv(output_file, index=False)
+    else:
+        if Path(output).is_dir():
+            output_dir = output
+        else:
+            output_dir = Path(output).parent / Path(output).stem
+
+        for id, df_i in enumerate(np.array_split(out_df, number_of_chunks)):
+            df_i.to_csv(Path(output_dir) / f"out_{id}.csv", index=False)
+
     click.secho(
-        "Keywors successfully combined. Output stored in {}".format(output_path),
+        "Keywors successfully combined. Output stored in {}".format(output_dir or output_file),
         fg="green",
+        # https://click.palletsprojects.com/en/7.x/api/#click.style
     )
 
 
@@ -61,6 +82,14 @@ def combine_keywords(destinations, modifiers, output):
     prompt="Path to output CSV or directory",
     help="Path where to write the output of the script. It can be a directory or a file. Output will be of CSV format.",
 )
-def cli(destinations, modifiers, out):
+@click.option(
+    "--max-rows",
+    required=False,
+    type=int,
+    prompt="Max number of rows to include in the output file(s).",
+    default=None,
+    help="Max number of rows in the output file(s). If total number of rows is greater that max_rows, then the script will create multiple files.",
+)
+def cli(destinations, modifiers, out, max_rows):
     """🥒   Combine Keywords from CSV files."""
-    combine_keywords(destinations=destinations, modifiers=modifiers, output=out)
+    combine_keywords(destinations=destinations, modifiers=modifiers, output=out, max_rows=max_rows)
