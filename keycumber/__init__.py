@@ -1,3 +1,5 @@
+from pathlib import Path
+
 import click
 import click_completion
 import pandas as pd
@@ -25,14 +27,16 @@ def combine_keywords(
     # df['output_2'] = df.modifiers + ' ' + df.destinations
 
     # TODO: only one column, batch by 700 rows maximum
-    df.to_csv(output, index=False)
-    pass
+    Path(output).mkdir(parents=True, exist_ok=True)
+    if Path(output).is_dir():
+        output_path = Path(output) / "out.csv"
+    df.to_csv(output_path, index=False)
 
 
 @click.command()
 @click.option("--destinations", "-d", type=click.Path(exists=True, dir_okay=False))
 @click.option("--modifiers", "-m", type=click.Path(exists=True, dir_okay=False))
-@click.option("--out", "-o", type=click.Path(dir_okay=False, writable=True))
+@click.option("--out", "-o", type=click.Path(dir_okay=True, writable=True))
 def cli(destinations, modifiers, out):
     """🥒   Combine Keywords from files"""
     combine_keywords(destinations=destinations, modifiers=modifiers, output=out)
