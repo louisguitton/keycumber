@@ -2,6 +2,7 @@ click
 click-completion
 pandas
 pytest
+pytest-cov
 setuptools
 twine
 wheel
