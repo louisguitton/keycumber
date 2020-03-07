@@ -8,7 +8,6 @@ dist:
 upload:
 	python3 -m twine upload --skip-existing dist/*
 
-
 .PHONY:test
 test:
-	pytest tests
+	pytest --cov=keycumber tests

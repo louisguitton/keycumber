@@ -50,23 +50,20 @@ def combine_keywords(
 
 def write_keywords(out_df: pd.Series, output: str, max_rows: float,) -> Path:
     # Add batching logic to create files with less rows than max_rows
-    if max_rows:
-        number_of_chunks = len(out_df) // max_rows
-        if len(out_df) % max_rows:
-            number_of_chunks += 1
-    else:
-        number_of_chunks = 1
+    number_of_chunks = int(len(out_df) // max_rows)
+    if len(out_df) % max_rows:
+        number_of_chunks += 1
 
     output_dir = None
     output_file = None
     if number_of_chunks == 1:
-        if Path(output).is_dir():
+        if not Path(output).suffix:
             output_file = Path(output) / "out.csv"
         else:
             output_file = output
 
         if not Path(output_file).exists():
-            Path(output_file).mkdir(parents=True, exist_ok=True)
+            Path(output_file).parent.mkdir(parents=True, exist_ok=True)
         out_df.to_csv(output_file, index=False)
     else:
         if Path(output).is_dir():

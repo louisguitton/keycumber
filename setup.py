@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name='keycumber',
-    version="1.0.0",
+    version="1.0.1",
     author="Louis Guitton",
     author_email="admin@guitton.co",
     description="A CLI tool to combine SEO keywords",
