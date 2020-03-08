@@ -147,3 +147,10 @@ def cli(destinations, modifiers, out, max_rows, mode):
             # https://click.palletsprojects.com/en/7.x/api/#click.style
         )
         raise e
+    except Exception as e:
+        click.secho(
+            "Unknown error, please open a ticket https://github.com/louisguitton/keycumber/issues",
+            fg="red"
+            # https://click.palletsprojects.com/en/7.x/api/#click.style
+        )
+        raise e

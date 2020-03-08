@@ -5,7 +5,7 @@ with open("Readme.md", "r") as fh:
 
 setuptools.setup(
     name='keycumber',
-    version="1.0.2",
+    version="1.0.3",
     author="Louis Guitton",
     author_email="admin@guitton.co",
     description="🥒 A Keyword Combinator to make Inbound Marketer's life better.",
