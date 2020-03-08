@@ -10,12 +10,12 @@ from keycumber import cli, combine_keywords, write_keywords
 
 @pytest.fixture
 def destinations():
-    return pd.DataFrame(["Uluru", "Sydney"], columns=["destination"])
+    return pd.read_csv("data/destinations.csv", header=None, names=["column"])
 
 
 @pytest.fixture
 def modifiers():
-    return pd.DataFrame(["vol", "hotel"], columns=["kw"])
+    return pd.read_csv("data/modifiers.csv", header=None, names=["column"])
 
 
 @pytest.mark.parametrize(
@@ -23,32 +23,26 @@ def modifiers():
     [
         (
             "destination_first",
-            pd.Series(
-                ["Uluru vol", "Uluru hotel", "Sydney vol", "Sydney hotel"],
-                name="output",
+            pd.read_csv(
+                "data/output_destination_first.csv",
+                squeeze=True,
+                header=None,
+                names=["output"],
             ),
         ),
         (
             "modifier_first",
-            pd.Series(
-                ["vol Uluru", "hotel Uluru", "vol Sydney", "hotel Sydney"],
-                name="output",
+            pd.read_csv(
+                "data/output_modifier_first.csv",
+                squeeze=True,
+                header=None,
+                names=["output"],
             ),
         ),
         (
             "both",
-            pd.Series(
-                [
-                    "Uluru vol",
-                    "Uluru hotel",
-                    "Sydney vol",
-                    "Sydney hotel",
-                    "vol Uluru",
-                    "hotel Uluru",
-                    "vol Sydney",
-                    "hotel Sydney",
-                ],
-                name="output",
+            pd.read_csv(
+                "data/output_both.csv", squeeze=True, header=None, names=["output"]
             ),
         ),
     ],
@@ -95,9 +89,13 @@ def test_write_keywords(max_rows, given_path, expected_path, expected_file_count
     )
 
 
-def test_cli():
-    runner = CliRunner()
-    result = runner.invoke(
+@pytest.fixture
+def cli_runner():
+    return CliRunner()
+
+
+def test_cli(cli_runner):
+    result = cli_runner.invoke(
         cli,
         [
             "-d",
@@ -108,5 +106,22 @@ def test_cli():
             "data/output.csv",
         ],
     )
+
     assert result.exit_code == 0
     assert "Keywors successfully combined" in result.output
+
+
+def test_not_csv_is_caught(cli_runner):
+    result = cli_runner.invoke(
+        cli,
+        [
+            "-d",
+            "data/wrong_input.json",
+            "-m",
+            "data/modifiers.csv",
+            "-o",
+            "data/output.csv",
+        ],
+    )
+
+    assert type(result.exception) == pd.errors.ParserError

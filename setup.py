@@ -5,10 +5,10 @@ with open("Readme.md", "r") as fh:
 
 setuptools.setup(
     name='keycumber',
-    version="1.0.1",
+    version="1.0.2",
     author="Louis Guitton",
     author_email="admin@guitton.co",
-    description="A CLI tool to combine SEO keywords",
+    description="🥒 A Keyword Combinator to make Inbound Marketer's life better.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/louisguitton/keycumber",

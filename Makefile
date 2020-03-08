@@ -6,7 +6,7 @@ dist:
 
 .PHONY:upload
 upload:
-	python3 -m twine upload --skip-existing dist/*
+	python3 -m twine upload --skip-existing --config-file .pypirc dist/*
 
 .PHONY:test
 test:
