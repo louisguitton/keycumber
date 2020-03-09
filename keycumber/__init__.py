@@ -15,7 +15,8 @@ def rm_tree(pth):
             child.unlink()
         else:
             rm_tree(child)
-    pth.rmdir()
+    if pth.exists():
+        pth.rmdir()
 
 
 def combine_keywords(
