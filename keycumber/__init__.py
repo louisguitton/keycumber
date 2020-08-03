@@ -148,7 +148,15 @@ def cli(destinations, modifiers, out, max_rows, mode):
         )
         raise e
 
-    validate_inputs(destinations, modifiers)
+    try:
+        validate_inputs(destinations, modifiers)
+    except AssertionError as e:
+        click.secho(
+            str(e),
+            fg="red"
+            # https://click.palletsprojects.com/en/7.x/api/#click.style
+        )
+        raise e
 
     try:
         out_df = combine_keywords(
