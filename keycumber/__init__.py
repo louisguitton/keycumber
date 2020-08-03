@@ -19,6 +19,15 @@ def rm_tree(pth):
         pth.rmdir()
 
 
+def validate_inputs(destinations: pd.DataFrame, modifiers: pd.DataFrame) -> None:
+    assert (
+        destinations.shape[1] == 1
+    ), f"Your destinations CSV should have 1 column. {destinations.shape[1]} found."
+    assert (
+        modifiers.shape[1] == 1
+    ), f"Your modifiers CSV should have 1 column. {modifiers.shape[1]} found."
+
+
 def combine_keywords(
     destinations: pd.DataFrame, modifiers: pd.DataFrame, mode: str
 ) -> pd.Series:
@@ -131,7 +140,17 @@ def cli(destinations, modifiers, out, max_rows, mode):
             columns={0: "column"}
         )
         modifiers = pd.read_csv(modifiers, header=None).rename(columns={0: "column"})
+    except pd.errors.ParserError as e:
+        click.secho(
+            "Error: Make sure you're passing CSV files to -d and -m",
+            fg="red"
+            # https://click.palletsprojects.com/en/7.x/api/#click.style
+        )
+        raise e
 
+    validate_inputs(destinations, modifiers)
+
+    try:
         out_df = combine_keywords(
             destinations=destinations, modifiers=modifiers, mode=mode,
         )
@@ -141,13 +160,6 @@ def cli(destinations, modifiers, out, max_rows, mode):
             fg="green",
             # https://click.palletsprojects.com/en/7.x/api/#click.style
         )
-    except pd.errors.ParserError as e:
-        click.secho(
-            "Error: Make sure you're passing CSV files to -d and -m",
-            fg="red"
-            # https://click.palletsprojects.com/en/7.x/api/#click.style
-        )
-        raise e
     except Exception as e:
         click.secho(
             "Unknown error, please open a ticket https://github.com/louisguitton/keycumber/issues",
