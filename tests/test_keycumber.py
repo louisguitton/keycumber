@@ -125,3 +125,19 @@ def test_not_csv_is_caught(cli_runner):
     )
 
     assert type(result.exception) == pd.errors.ParserError
+
+
+def test_dirty_csv_is_caught(cli_runner):
+    result = cli_runner.invoke(
+        cli,
+        [
+            "-d",
+            "data/destinations.csv",
+            "-m",
+            "data/dirty_modifiers.csv",
+            "-o",
+            "data/output.csv",
+        ],
+    )
+
+    assert type(result.exception) == AssertionError
